@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PañolCentral - Gestión de Inventario</title>
+    <link rel="stylesheet" href="inventario.css">
+</head>
+<body>
+
+    <div class="dashboard-container">
+        <!-- CABECERA / MENÚ SUPERIOR MÓVIL Y LATERAL ESCRITORIO -->
+        <aside class="sidebar">
+            <div class="logo">
+                <h2>🛠️ PañolCentral</h2>
+            </div>
+            <nav class="nav-links">
+                <a href="#" class="nav-tab active" data-target="vista-principal">Panel Principal</a>
+                <a href="#" class="nav-tab" data-target="vista-movimientos">Movimientos</a>
+                <a href="#" class="nav-tab" data-target="vista-reportes">Reportes</a>
+            </nav>
+            <div class="sidebar-footer">
+                <p>Sistema Pañol v2.0</p>
+            </div>
+        </aside>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <main class="main-content">
+            <header class="top-header">
+                <div class="welcome-text">
+                    <h1>Control de Suministros</h1>
+                </div>
+                <div class="user-profile">
+                    <span>Operador de Pañol</span>
+                </div>
+            </header>
+
+            <!-- PESTAÑA 1: PANEL PRINCIPAL -->
+            <div id="vista-principal" class="tab-content active-view">
+                <section class="metrics-grid">
+                    <div class="card status-ok">
+                        <h3>Rotación de Inventario</h3>
+                        <p class="metric-value" id="metric-rotacion">0 días</p>
+                        <span class="status-indicator">Estable</span>
+                    </div>
+                    <div class="card status-warning">
+                        <h3>Stock de Seguridad</h3>
+                        <p class="metric-value" id="metric-seguridad">0 Unidades</p>
+                        <span class="status-indicator">Revisar mínimos</span>
+                    </div>
+                    <div class="card">
+                        <h3>Herramientas en Tránsito</h3>
+                        <p class="metric-value" id="metric-transito">0 ítems</p>
+                        <span class="status-indicator-neutral">Préstamos pendientes</span>
+                    </div>
+                </section>
+
+                <section class="storage-section" style="margin-top: 2rem;">
+                    <h3>Capacidad de Almacenamiento Ocupado</h3>
+                    <div class="storage-item">
+                        <div class="storage-info">
+                            <span>Estantería A (Herramientas Manuales)</span>
+                            <span id="val-estanteria-a">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div id="bar-estanteria-a" class="progress-fill fill-high" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                    <div class="storage-item">
+                        <div class="storage-info">
+                            <span>Estantería B (Equipos Eléctricos)</span>
+                            <span id="val-estanteria-b">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div id="bar-estanteria-b" class="progress-fill fill-normal" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- PESTAÑA 2: MOVIMIENTOS -->
+            <div id="vista-movimientos" class="tab-content">
+                <!-- Formulario de registro -->
+                <div class="form-container">
+                    <h3>📝 Registrar Movimiento de Pañol</h3>
+                    <form id="form-registro-movimiento" class="inline-form">
+                        <input type="text" id="codigo-item" placeholder="Código (ej: #HZ-5000)" required>
+                        <input type="text" id="descripcion-item" placeholder="Descripción de Herramienta" required>
+                        <input type="text" id="area-destino" placeholder="Área / Destino" required>
+                        <select id="tipo-movimiento" required>
+                            <option value="Ingreso">Ingreso (Retorno al Pañol)</option>
+                            <option value="Préstamo">Préstamo (Salida a Planta)</option>
+                        </select>
+                        <input type="number" id="cantidad-item" placeholder="Cantidad" min="1" required>
+                        <button type="submit" class="btn-submit">Registrar</button>
+                    </form>
+                </div>
+
+                <!-- Tabla del historial -->
+                <div class="table-container" style="margin-top: 2rem;">
+                    <div class="table-header">
+                        <h3>📋 Últimos Movimientos de Pañol</h3>
+                        <!-- ⚡ NUEVO: Contenedor de filtros dinámicos -->
+                       <div class="table-actions" style="display: flex; gap: 10px;">
+                            <select id="filtro-estado" class="btn-filter">
+                                <option value="Todos">🔍 Mostrar Todos</option>
+                                <option value="Pendiente">⚠️ Solo Pendientes</option>
+                                <option value="Completado">✅ Solo Completados</option>
+                            </select>
+                            <!-- ⚡ BOTÓN DE EXPORTACIÓN -->
+                            <button onclick="exportarACSV()" class="btn-filter" style="background: #3b82f6; border: none; color: white;">📥 Exportar</button>
+                        </div>
+                    </div>
+                    <div class="responsive-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Descripción del Ítem</th>
+                                    <th>Área / Destino</th>
+                                    <th>Tipo</th>
+                                    <th>Cantidad</th>
+                                    <th>Estado</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabla-movimientos">
+                                <!-- Filas inyectadas por JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PESTAÑA 3: REPORTES -->
+            <div id="vista-reportes" class="tab-content">
+                <div class="report-container">
+                    <h3>📊 Gráfico de Rendimiento Operativo</h3>
+                    <p class="section-desc">Frecuencia de movimientos registrados por categoría mensual.</p>
+                    <div class="css-chart">
+                        <div class="chart-bar" style="--bar-height: 75%;"><span>Ene</span></div>
+                        <div class="chart-bar" style="--bar-height: 45%;"><span>Feb</span></div>
+                        <div class="chart-bar" style="--bar-height: 90%;"><span>Mar</span></div>
+                        <div class="chart-bar" style="--bar-height: 60%;"><span>Abr</span></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="inventario.js"></script>
+</body>
+</html>
